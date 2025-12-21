@@ -9,7 +9,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["clock.js", "1758183063.mp4"],
+      "resources": ["clock.js", "CustomWallpaperGoesHere.mp4"],
       "matches": ["<all_urls>"]
     }
   ],
@@ -17,3 +17,4 @@
     "script-src": ["'self'"]
   }
 }
+
