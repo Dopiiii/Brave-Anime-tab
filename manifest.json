@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Brave Anime Tab",
+  "name": "Anime Tab",
   "version": "1.0.0",
   "description": "A fully customizable new tab page with animated wallpapers, draggable modules, themes, and developer mode.",
   "permissions": [
