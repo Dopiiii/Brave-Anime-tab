@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // Listen for module code from parent
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'render-module') {
+        const { html, css, js } = e.data;
+        const root = document.getElementById('root');
+
+        // Inject CSS
+        if (css) {
+          const style = document.createElement('style');
+          style.textContent = css;
+          document.head.appendChild(style);
+        }
+
+        // Inject HTML
+        if (html) {
+          root.innerHTML = html;
+        }
+
+        // Execute JS
+        if (js) {
+          try {
+            const fn = new Function('container', 'document', js);
+            fn(root, document);
+          } catch (err) {
+            root.innerHTML += '<p style="color:#e74c3c;font-size:12px;margin-top:8px;">Erreur: ' + err.message + '</p>';
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

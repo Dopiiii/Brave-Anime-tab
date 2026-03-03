@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Brave Anime Tab",
+  "version": "1.0.0",
+  "description": "A fully customizable new tab page with animated wallpapers, draggable modules, themes, and developer mode.",
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "topSites"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "sandbox": {
+    "pages": ["sandbox.html"]
+  }
+}

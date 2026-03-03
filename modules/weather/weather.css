@@ -1,0 +1,129 @@
+/* Weather Module */
+.weather-module {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.weather-loading {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Minimal mode */
+.weather-minimal .weather-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.weather-icon-large {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.weather-temp {
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: var(--text-primary);
+}
+
+.weather-city-label {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Detailed mode */
+.weather-detailed .weather-content {
+  width: 100%;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.weather-temp-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.weather-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.weather-details {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.weather-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.weather-detail-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.weather-humidity,
+.weather-wind {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Forecast */
+.weather-forecast {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.weather-forecast-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.forecast-day-name {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.forecast-icon {
+  font-size: 1.2rem;
+}
+
+.forecast-temps {
+  display: flex;
+  gap: 4px;
+  font-size: 0.75rem;
+}
+
+.forecast-max {
+  color: var(--text-primary);
+}
+
+.forecast-min {
+  color: var(--text-muted);
+}

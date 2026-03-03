@@ -1,0 +1,182 @@
+/* ============================================
+   ANIMATIONS.CSS — Boot animation, transitions, micro-interactions
+   ============================================ */
+
+/* ---- Boot: Wallpaper ---- */
+#wallpaper-layer {
+  opacity: 0;
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#wallpaper-layer.loaded {
+  opacity: 1;
+}
+
+/* ---- Boot: Grid ---- */
+#module-grid {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 400ms;
+}
+
+#module-grid.loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- Boot: Module stagger ---- */
+.module-cell {
+  opacity: 0;
+  transform: translateY(20px) scale(0.96);
+  transition:
+    opacity 500ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 500ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 300ms ease,
+    background 300ms ease,
+    grid-column 400ms ease,
+    grid-row 400ms ease;
+}
+
+.module-cell.animate-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Stagger delays */
+.module-cell:nth-child(1) { transition-delay: 0ms; }
+.module-cell:nth-child(2) { transition-delay: 100ms; }
+.module-cell:nth-child(3) { transition-delay: 180ms; }
+.module-cell:nth-child(4) { transition-delay: 250ms; }
+.module-cell:nth-child(5) { transition-delay: 310ms; }
+.module-cell:nth-child(6) { transition-delay: 370ms; }
+.module-cell:nth-child(7) { transition-delay: 420ms; }
+.module-cell:nth-child(8) { transition-delay: 470ms; }
+
+/* ---- Module hover ---- */
+.module-cell:hover {
+  box-shadow: var(--shadow-lg);
+  background: rgba(255, 255, 255, calc(var(--module-opacity) + 0.03));
+}
+
+/* Subtle float animation on hover */
+.module-cell:hover .clock-time,
+.module-cell:hover .greeting-text,
+.module-cell:hover .weather-icon-large {
+  transform: translateY(-1px);
+  transition: transform 300ms ease;
+}
+
+/* ---- Settings panel ---- */
+#settings-panel {
+  transform: translateX(100%);
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#settings-panel.open {
+  transform: translateX(0);
+}
+
+/* ---- Settings gear ---- */
+#settings-trigger {
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 300ms ease, box-shadow 300ms ease;
+}
+
+#settings-trigger:hover {
+  transform: rotate(90deg);
+  box-shadow: 0 0 20px rgba(108, 92, 231, 0.3);
+}
+
+/* ---- Drag states ---- */
+.module-cell.dragging {
+  opacity: 0.4;
+  transform: scale(0.92) rotate(1deg);
+  z-index: 100;
+  box-shadow: var(--shadow-lg);
+}
+
+.grid-placeholder {
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: var(--module-radius);
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 200ms ease;
+}
+
+.grid-placeholder.drag-over {
+  background: rgba(108, 92, 231, 0.12);
+  border-color: var(--accent);
+  transform: scale(1.02);
+}
+
+/* ---- Toast animation ---- */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.95); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  to { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.95); }
+}
+
+/* ---- Pulse animation for active states ---- */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0); }
+  50% { box-shadow: 0 0 12px 2px rgba(108, 92, 231, 0.25); }
+}
+
+/* ---- Skeleton loading shimmer ---- */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, transparent 30%, rgba(255, 255, 255, 0.06) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+}
+
+/* ---- Fade-in generic ---- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ---- Settings tab content animation ---- */
+.settings-tab-content.active {
+  animation: fadeInUp 250ms ease;
+}
+
+/* ---- Module toggle animation ---- */
+.module-toggle-item {
+  transition: background 200ms ease;
+}
+
+.module-toggle-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ---- No-animation mode ---- */
+.no-animations #wallpaper-layer,
+.no-animations #module-grid,
+.no-animations .module-cell {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: box-shadow 300ms ease, background 300ms ease !important;
+  transition-delay: 0ms !important;
+}
+
+.no-animations .settings-tab-content.active {
+  animation: none;
+}

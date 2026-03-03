@@ -1,0 +1,152 @@
+/* ============================================
+   MODULES.CSS — Shared module card styles
+   ============================================ */
+
+.module-cell {
+  background: rgba(255, 255, 255, var(--module-opacity));
+  backdrop-filter: blur(var(--module-blur));
+  -webkit-backdrop-filter: blur(var(--module-blur));
+  border-radius: var(--module-radius);
+  border: 1px solid var(--border-card);
+  padding: var(--module-padding);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Subtle inner glow on top edge */
+.module-cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  pointer-events: none;
+}
+
+/* Module header */
+.module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+/* Module content area */
+.module-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Common module text */
+.module-cell h2 {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.module-cell h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.module-cell p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Common input styles */
+.module-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+}
+
+.module-input:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.module-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Buttons */
+.module-btn {
+  padding: 8px 18px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 200ms ease, transform 150ms ease, box-shadow 200ms ease;
+}
+
+.module-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+}
+
+.module-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.module-btn-ghost {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 200ms ease;
+}
+
+.module-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.module-btn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  transition: all 200ms ease;
+}
+
+.module-btn-icon:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+}
+
+.module-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.6;
+}

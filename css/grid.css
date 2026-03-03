@@ -1,0 +1,64 @@
+/* ============================================
+   GRID.CSS — Auto-layout grid for modules
+   ============================================ */
+
+#module-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), 1fr);
+  grid-auto-rows: 1fr;
+  gap: var(--grid-gap);
+  padding: var(--grid-padding);
+  z-index: 1;
+  pointer-events: none;
+  align-content: stretch;
+}
+
+/* Auto-flow: modules auto-fill the grid */
+#module-grid.auto-layout {
+  grid-template-rows: none;
+  grid-auto-rows: minmax(120px, 1fr);
+}
+
+/* Module cells */
+.module-cell {
+  pointer-events: auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* When only 1 module: take full space */
+.module-cell:only-child {
+  grid-column: 1 / -1;
+}
+
+/* Edit mode: show grid lines */
+#module-grid.edit-mode {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent);
+  background-size: calc(100% / var(--grid-cols)) calc(100% / var(--grid-rows, 3));
+}
+
+/* Edit mode indicators */
+#module-grid.edit-mode .module-cell {
+  cursor: grab;
+  outline: 2px dashed rgba(255, 255, 255, 0.12);
+  outline-offset: -2px;
+}
+
+#module-grid.edit-mode .module-cell:active {
+  cursor: grabbing;
+}
+
+#module-grid.edit-mode .module-cell::after {
+  content: '⋮⋮';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 2px;
+  pointer-events: none;
+}

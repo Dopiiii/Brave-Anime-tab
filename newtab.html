@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nouvel onglet</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/grid.css">
+  <link rel="stylesheet" href="css/modules.css">
+  <link rel="stylesheet" href="css/settings.css">
+
+  <!-- Module styles -->
+  <link rel="stylesheet" href="modules/clock/clock.css">
+  <link rel="stylesheet" href="modules/greeting/greeting.css">
+  <link rel="stylesheet" href="modules/search/search.css">
+  <link rel="stylesheet" href="modules/weather/weather.css">
+  <link rel="stylesheet" href="modules/shortcuts/shortcuts.css">
+  <link rel="stylesheet" href="modules/todo/todo.css">
+  <link rel="stylesheet" href="modules/quote/quote.css">
+  <link rel="stylesheet" href="modules/notes/notes.css">
+  <link rel="stylesheet" href="modules/pomodoro/pomodoro.css">
+  <link rel="stylesheet" href="modules/countdown/countdown.css">
+</head>
+<body>
+
+  <!-- Wallpaper layer -->
+  <div id="wallpaper-layer">
+    <video id="wallpaper-video" autoplay loop muted playsinline></video>
+    <div id="wallpaper-image"></div>
+  </div>
+
+  <!-- Module grid -->
+  <div id="module-grid"></div>
+
+  <!-- Settings trigger -->
+  <button id="settings-trigger" aria-label="Ouvrir les paramètres">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+  </button>
+
+  <!-- Settings panel -->
+  <aside id="settings-panel"></aside>
+
+  <!-- Theme presets (must load before themes.js) -->
+  <script src="themes/presets.js"></script>
+
+  <!-- Core JS -->
+  <script src="js/storage.js"></script>
+  <script src="js/wallpaper.js"></script>
+  <script src="js/module-registry.js"></script>
+  <script src="js/grid-manager.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/keyboard.js"></script>
+  <script src="js/dev-mode.js"></script>
+  <script src="js/settings.js"></script>
+
+  <!-- Module JS -->
+  <script src="modules/clock/clock.js"></script>
+  <script src="modules/greeting/greeting.js"></script>
+  <script src="modules/search/search.js"></script>
+  <script src="modules/weather/weather.js"></script>
+  <script src="modules/shortcuts/shortcuts.js"></script>
+  <script src="modules/todo/todo.js"></script>
+  <script src="modules/quote/quote.js"></script>
+  <script src="modules/notes/notes.js"></script>
+  <script src="modules/pomodoro/pomodoro.js"></script>
+  <script src="modules/countdown/countdown.js"></script>
+
+  <!-- App entry point (must be last) -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>
