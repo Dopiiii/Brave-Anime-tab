@@ -4,6 +4,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  position: relative;
 }
 
 .search-wrapper {
@@ -58,4 +59,85 @@
   font-size: 0.75rem;
   color: var(--text-muted);
   pointer-events: none;
+}
+
+/* Command suggestions */
+.search-commands-hint {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.search-commands-hint.hidden { display: none; }
+
+.search-cmd-suggestion {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.search-cmd-suggestion:hover {
+  background: rgba(108, 92, 231, 0.15);
+  border-color: var(--accent);
+}
+
+.search-cmd-suggestion small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+/* Settings: command items */
+.search-cmd-item {
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.search-cmd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-cmd-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.search-cmd-remove {
+  padding: 2px 6px !important;
+  font-size: 0.7rem !important;
+  min-width: unset !important;
+}
+
+.search-cmd-urls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.search-cmd-url {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -1,5 +1,5 @@
 /* ============================================
-   SEARCH MODULE
+   SEARCH MODULE — with custom commands
    ============================================ */
 
 window.SearchModule = {
@@ -28,6 +28,7 @@ window.SearchModule = {
           <input type="text" class="search-input" placeholder="${placeholder}" autocomplete="off" spellcheck="false">
           <span class="search-engine-badge">${engine.name}</span>
         </div>
+        <div class="search-commands-hint hidden"></div>
       </div>
     `;
   },
@@ -35,10 +36,56 @@ window.SearchModule = {
   mount(el, config) {
     const input = el.querySelector('.search-input');
     const engine = this._engines[config.engine] || this._engines.google;
+    const hint = el.querySelector('.search-commands-hint');
+    const commands = config.commands || [];
+
+    input.addEventListener('input', () => {
+      const val = input.value.trim();
+      if (val.startsWith('/') && commands.length > 0) {
+        const typed = val.slice(1).toLowerCase();
+        const matches = commands.filter(c => c.name.toLowerCase().startsWith(typed));
+        if (matches.length > 0 && typed.length > 0) {
+          hint.innerHTML = matches.map(c =>
+            `<span class="search-cmd-suggestion" data-cmd="${c.name}">/${c.name} <small>(${c.urls.length} sites)</small></span>`
+          ).join('');
+          hint.classList.remove('hidden');
+
+          hint.querySelectorAll('.search-cmd-suggestion').forEach(s => {
+            s.addEventListener('click', () => {
+              const cmd = commands.find(c => c.name === s.dataset.cmd);
+              if (cmd) {
+                cmd.urls.forEach(url => window.open(url, '_blank'));
+                input.value = '';
+                hint.classList.add('hidden');
+              }
+            });
+          });
+        } else {
+          hint.classList.add('hidden');
+        }
+      } else {
+        hint.classList.add('hidden');
+      }
+    });
 
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && input.value.trim()) {
-        const query = encodeURIComponent(input.value.trim());
+        const val = input.value.trim();
+
+        // Check for custom commands
+        if (val.startsWith('/') && commands.length > 0) {
+          const cmdName = val.slice(1).toLowerCase();
+          const cmd = commands.find(c => c.name.toLowerCase() === cmdName);
+          if (cmd) {
+            cmd.urls.forEach(url => window.open(url, '_blank'));
+            input.value = '';
+            hint.classList.add('hidden');
+            return;
+          }
+        }
+
+        // Normal search
+        const query = encodeURIComponent(val);
         window.location.href = engine.url + query;
       }
     });
@@ -47,6 +94,17 @@ window.SearchModule = {
   unmount() {},
 
   renderSettings(config) {
+    const commands = config.commands || [];
+    const commandsHtml = commands.map((cmd, i) => `
+      <div class="search-cmd-item">
+        <div class="search-cmd-header">
+          <span class="search-cmd-name">/${cmd.name}</span>
+          <button class="module-btn-ghost search-cmd-remove" data-cmd-index="${i}">✕</button>
+        </div>
+        <div class="search-cmd-urls">${cmd.urls.map(u => `<span class="search-cmd-url">${u}</span>`).join('')}</div>
+      </div>
+    `).join('');
+
     return `
       <div class="setting-group">
         <label class="setting-label">Moteur de recherche</label>
@@ -61,6 +119,16 @@ window.SearchModule = {
         <label class="setting-label">Placeholder</label>
         <input type="text" class="setting-input" data-module="search" data-key="placeholder"
                value="${config.placeholder || ''}" placeholder="Texte du placeholder">
+      </div>
+      <div class="setting-divider"></div>
+      <p class="setting-section-title">Commandes personnalisées</p>
+      <p class="setting-hint">Tapez /<em>nom</em> dans la barre de recherche pour ouvrir plusieurs sites d'un coup.</p>
+      <div class="search-commands-list">${commandsHtml || '<p class="setting-hint">Aucune commande.</p>'}</div>
+      <div class="setting-group" style="margin-top:10px">
+        <label class="setting-label">Nouvelle commande</label>
+        <input type="text" class="setting-input" id="search-cmd-name" placeholder="Nom (ex: travail)" style="margin-bottom:6px">
+        <textarea class="setting-input" id="search-cmd-urls" placeholder="URLs (une par ligne)&#10;https://gmail.com&#10;https://github.com" style="min-height:60px;resize:vertical"></textarea>
+        <button class="module-btn" id="search-cmd-add" style="margin-top:6px;width:100%">Ajouter la commande</button>
       </div>
     `;
   },

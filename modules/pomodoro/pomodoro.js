@@ -12,7 +12,6 @@ window.PomodoroModule = {
 
   render(config) {
     const workMin = config.workDuration || 25;
-    const breakMin = config.breakDuration || 5;
 
     return `
       <div class="pomodoro-module">
@@ -25,8 +24,9 @@ window.PomodoroModule = {
           </div>
         </div>
         <div class="pomodoro-controls">
-          <button class="pomodoro-btn pomodoro-start">▶</button>
-          <button class="pomodoro-btn pomodoro-reset">↺</button>
+          <button class="pomodoro-btn pomodoro-start" title="Démarrer / Pause">▶</button>
+          <button class="pomodoro-btn pomodoro-skip" title="Passer à la pause / au travail">⏭</button>
+          <button class="pomodoro-btn pomodoro-reset" title="Réinitialiser">↺</button>
         </div>
       </div>
     `;
@@ -37,6 +37,7 @@ window.PomodoroModule = {
     const modeEl = el.querySelector('.pomodoro-mode');
     const progressBar = el.querySelector('.pomodoro-progress-bar');
     const startBtn = el.querySelector('.pomodoro-start');
+    const skipBtn = el.querySelector('.pomodoro-skip');
     const resetBtn = el.querySelector('.pomodoro-reset');
 
     const workDuration = (config.workDuration || 25) * 60;
@@ -54,6 +55,12 @@ window.PomodoroModule = {
       progressBar.style.background = this._state.mode === 'work' ? 'var(--accent)' : '#00b894';
     };
 
+    const switchMode = (newMode) => {
+      this._state.mode = newMode;
+      this._state.timeLeft = totalTime();
+      updateDisplay();
+    };
+
     startBtn.addEventListener('click', () => {
       if (this._state.running) {
         clearInterval(this._interval);
@@ -65,13 +72,20 @@ window.PomodoroModule = {
         this._interval = setInterval(() => {
           this._state.timeLeft--;
           if (this._state.timeLeft <= 0) {
-            this._state.mode = this._state.mode === 'work' ? 'break' : 'work';
-            this._state.timeLeft = totalTime();
-            // Notification sound
+            switchMode(this._state.mode === 'work' ? 'break' : 'work');
             try { new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==').play(); } catch(e) {}
           }
           updateDisplay();
         }, 1000);
+      }
+    });
+
+    skipBtn.addEventListener('click', () => {
+      const newMode = this._state.mode === 'work' ? 'break' : 'work';
+      switchMode(newMode);
+      // Keep running state
+      if (!this._state.running) {
+        startBtn.textContent = '▶';
       }
     });
 

@@ -20,7 +20,7 @@ const StorageManager = (() => {
     modules: {
       clock:     { enabled: true, config: { format: '24h', showSeconds: false, showDate: true } },
       greeting:  { enabled: true, config: { name: '', language: 'fr' } },
-      search:    { enabled: true, config: { engine: 'google', placeholder: 'Rechercher...' } },
+      search:    { enabled: true, config: { engine: 'google', placeholder: 'Rechercher...', commands: [] } },
       weather:   { enabled: true, config: { mode: 'minimal', unit: 'C', city: '', lat: null, lon: null } },
       shortcuts: { enabled: true, config: { showSimple: true, showFolders: false, showTopSites: true, items: [], folders: [] } },
       todo:      { enabled: true, config: { items: [] } },
@@ -50,6 +50,7 @@ const StorageManager = (() => {
         toggleEditMode: 'e'
       }
     },
+    customThemes: [],      // [{ id, name, vars: { ... } }]
     devMode: {
       enabled: false,
       customModules: []    // [{ id, name, html, css, js }]

@@ -271,7 +271,7 @@ const SettingsPanel = (() => {
         <!-- THEMES TAB -->
         <div class="settings-tab-content" data-tab="themes">
           <div class="setting-group">
-            <p class="setting-hint">Choisissez un thème ou personnalisez dans l'onglet Apparence.</p>
+            <p class="setting-hint">Choisissez un thème pré-défini ou créez le vôtre.</p>
           </div>
           <div class="theme-grid" id="theme-grid">
             <div class="theme-card" data-theme="custom">
@@ -279,6 +279,79 @@ const SettingsPanel = (() => {
               <div class="theme-card-name">Personnalisé</div>
             </div>
           </div>
+
+          <div class="setting-divider"></div>
+          <p class="setting-section-title">Créer un thème</p>
+
+          <div class="setting-group">
+            <label class="setting-label">Nom du thème</label>
+            <input type="text" class="setting-input" id="theme-creator-name" placeholder="Mon thème">
+          </div>
+
+          <div class="theme-creator-grid">
+            <div class="setting-group">
+              <label class="setting-label">Couleur d'accent</label>
+              <input type="color" class="theme-color-input" id="tc-accent" value="#6c5ce7">
+            </div>
+            <div class="setting-group">
+              <label class="setting-label">Accent hover</label>
+              <input type="color" class="theme-color-input" id="tc-accent-hover" value="#5a4bd1">
+            </div>
+            <div class="setting-group">
+              <label class="setting-label">Fond principal</label>
+              <input type="color" class="theme-color-input" id="tc-bg-primary" value="#0f0f19">
+            </div>
+            <div class="setting-group">
+              <label class="setting-label">Fond secondaire</label>
+              <input type="color" class="theme-color-input" id="tc-bg-secondary" value="#14101e">
+            </div>
+            <div class="setting-group">
+              <label class="setting-label">Texte principal</label>
+              <input type="color" class="theme-color-input" id="tc-text-primary" value="#f0f0f0">
+            </div>
+            <div class="setting-group">
+              <label class="setting-label">Texte secondaire</label>
+              <input type="color" class="theme-color-input" id="tc-text-secondary" value="#a0a0b0">
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">Opacité fond principal</label>
+            <div class="setting-slider-row">
+              <input type="range" class="setting-slider" id="tc-bg-opacity" min="0.3" max="1" step="0.05" value="0.9">
+              <span class="setting-slider-value" id="tc-bg-opacity-val">0.9</span>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">Flou des modules</label>
+            <div class="setting-slider-row">
+              <input type="range" class="setting-slider" id="tc-blur" min="0" max="30" value="14">
+              <span class="setting-slider-value" id="tc-blur-val">14px</span>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">Arrondi des modules</label>
+            <div class="setting-slider-row">
+              <input type="range" class="setting-slider" id="tc-radius" min="0" max="30" value="16">
+              <span class="setting-slider-value" id="tc-radius-val">16px</span>
+            </div>
+          </div>
+
+          <div class="theme-creator-preview" id="tc-preview">
+            <div class="tc-preview-card">
+              <span class="tc-preview-title">Aperçu</span>
+              <span class="tc-preview-text">Texte secondaire</span>
+              <div class="tc-preview-accent"></div>
+            </div>
+          </div>
+
+          <button class="module-btn" id="theme-creator-save" style="width:100%;margin-top:10px">Sauvegarder le thème</button>
+
+          <div class="setting-divider"></div>
+          <p class="setting-section-title">Mes thèmes</p>
+          <div id="custom-themes-list"></div>
         </div>
 
         <!-- MORE TAB (keyboard, import/export, dev) -->
@@ -384,6 +457,7 @@ const SettingsPanel = (() => {
 
     // ======= THEMES =======
     renderThemes(settings.theme?.active);
+    setupThemeCreator(settings);
 
     // ======= MORE (keyboard, import/export, dev) =======
     setupMoreTab(settings);
@@ -867,16 +941,56 @@ const SettingsPanel = (() => {
         showToast('Tâches terminées supprimées');
       });
     }
+
+    // Search custom commands: add
+    const cmdAddBtn = settingsContainer.querySelector('#search-cmd-add');
+    if (cmdAddBtn) {
+      cmdAddBtn.addEventListener('click', async () => {
+        const nameInput = document.getElementById('search-cmd-name');
+        const urlsInput = document.getElementById('search-cmd-urls');
+        const name = nameInput.value.trim().replace(/^\//, '');
+        const urls = urlsInput.value.split('\n').map(u => u.trim()).filter(u => u.length > 0);
+        if (!name || urls.length === 0) { showToast('Nom et au moins une URL requis'); return; }
+
+        const modules = await StorageManager.get('modules');
+        if (!modules.search.config.commands) modules.search.config.commands = [];
+        modules.search.config.commands.push({ name, urls });
+        await StorageManager.set('modules', modules);
+        await GridManager.refreshModule('search');
+
+        nameInput.value = '';
+        urlsInput.value = '';
+        const all = await StorageManager.getAll();
+        renderModuleToggles(all);
+        showToast(`Commande /${name} ajoutée !`);
+      });
+    }
+
+    // Search custom commands: remove
+    settingsContainer.querySelectorAll('.search-cmd-remove').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const index = parseInt(btn.dataset.cmdIndex);
+        const modules = await StorageManager.get('modules');
+        modules.search.config.commands.splice(index, 1);
+        await StorageManager.set('modules', modules);
+        await GridManager.refreshModule('search');
+        const all = await StorageManager.getAll();
+        renderModuleToggles(all);
+        showToast('Commande supprimée');
+      });
+    });
   }
 
   // ---------- THEMES ----------
-  function renderThemes(activeThemeId) {
+  async function renderThemes(activeThemeId) {
     const grid = document.getElementById('theme-grid');
     const presets = ThemeManager.getPresets();
+    const customThemes = await ThemeManager.getCustomThemes();
 
     const customCard = grid.querySelector('[data-theme="custom"]');
     if (activeThemeId === 'custom' || !activeThemeId) customCard.classList.add('active');
 
+    // Add preset themes
     for (const [id, theme] of Object.entries(presets)) {
       const accent = theme.vars['--accent'] || '#6c5ce7';
       const bg = theme.vars['--bg-primary'] || 'rgba(15,15,25,0.85)';
@@ -896,6 +1010,26 @@ const SettingsPanel = (() => {
       grid.appendChild(card);
     }
 
+    // Add user-created themes
+    for (const theme of customThemes) {
+      const accent = theme.vars['--accent'] || '#6c5ce7';
+      const bg = theme.vars['--bg-primary'] || 'rgba(15,15,25,0.85)';
+      const text = theme.vars['--text-primary'] || '#f0f0f0';
+
+      const card = document.createElement('div');
+      card.className = `theme-card${activeThemeId === theme.id ? ' active' : ''}`;
+      card.dataset.theme = theme.id;
+      card.innerHTML = `
+        <div class="theme-card-preview">
+          <div class="theme-preview-swatch" style="background:${bg}"></div>
+          <div class="theme-preview-swatch" style="background:${accent}"></div>
+          <div class="theme-preview-swatch" style="background:${text}"></div>
+        </div>
+        <div class="theme-card-name">${theme.name}</div>
+      `;
+      grid.appendChild(card);
+    }
+
     grid.addEventListener('click', async (e) => {
       const card = e.target.closest('.theme-card');
       if (!card) return;
@@ -903,6 +1037,138 @@ const SettingsPanel = (() => {
       card.classList.add('active');
       await ThemeManager.setTheme(card.dataset.theme);
       showToast(`Thème "${card.querySelector('.theme-card-name').textContent}" appliqué !`);
+    });
+  }
+
+  // ---------- THEME CREATOR ----------
+  function setupThemeCreator(settings) {
+    const accent = document.getElementById('tc-accent');
+    const accentHover = document.getElementById('tc-accent-hover');
+    const bgPrimary = document.getElementById('tc-bg-primary');
+    const bgSecondary = document.getElementById('tc-bg-secondary');
+    const textPrimary = document.getElementById('tc-text-primary');
+    const textSecondary = document.getElementById('tc-text-secondary');
+    const bgOpacity = document.getElementById('tc-bg-opacity');
+    const bgOpacityVal = document.getElementById('tc-bg-opacity-val');
+    const blur = document.getElementById('tc-blur');
+    const blurVal = document.getElementById('tc-blur-val');
+    const radius = document.getElementById('tc-radius');
+    const radiusVal = document.getElementById('tc-radius-val');
+    const preview = document.getElementById('tc-preview');
+
+    function hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function updatePreview() {
+      const a = parseFloat(bgOpacity.value);
+      bgOpacityVal.textContent = a;
+      blurVal.textContent = blur.value + 'px';
+      radiusVal.textContent = radius.value + 'px';
+
+      preview.style.background = hexToRgba(bgPrimary.value, a);
+      preview.style.borderRadius = radius.value + 'px';
+      const card = preview.querySelector('.tc-preview-card');
+      if (card) {
+        card.style.background = hexToRgba(bgSecondary.value, Math.min(1, a + 0.05));
+        card.style.borderRadius = (radius.value * 0.7) + 'px';
+        card.style.backdropFilter = `blur(${blur.value}px)`;
+      }
+      const title = preview.querySelector('.tc-preview-title');
+      if (title) title.style.color = textPrimary.value;
+      const text = preview.querySelector('.tc-preview-text');
+      if (text) text.style.color = textSecondary.value;
+      const accentEl = preview.querySelector('.tc-preview-accent');
+      if (accentEl) accentEl.style.background = accent.value;
+    }
+
+    [accent, accentHover, bgPrimary, bgSecondary, textPrimary, textSecondary, bgOpacity, blur, radius].forEach(input => {
+      input.addEventListener('input', updatePreview);
+    });
+
+    updatePreview();
+
+    // Save theme
+    document.getElementById('theme-creator-save').addEventListener('click', async () => {
+      const name = document.getElementById('theme-creator-name').value.trim();
+      if (!name) { showToast('Donnez un nom au thème'); return; }
+
+      const a = parseFloat(bgOpacity.value);
+      const theme = {
+        id: 'user_' + name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now(),
+        name,
+        vars: {
+          '--accent': accent.value,
+          '--accent-hover': accentHover.value,
+          '--bg-primary': hexToRgba(bgPrimary.value, a),
+          '--bg-secondary': hexToRgba(bgSecondary.value, Math.min(1, a + 0.05)),
+          '--bg-card': hexToRgba(accent.value, 0.06),
+          '--border-card': hexToRgba(accent.value, 0.12),
+          '--text-primary': textPrimary.value,
+          '--text-secondary': hexToRgba(textSecondary.value, 0.65),
+          '--text-muted': hexToRgba(textSecondary.value, 0.35),
+          '--module-blur': blur.value + 'px',
+          '--module-radius': radius.value + 'px'
+        }
+      };
+
+      await ThemeManager.saveCustomTheme(theme);
+      await ThemeManager.setTheme(theme.id);
+
+      // Re-render themes
+      const activeTheme = theme.id;
+      const grid = document.getElementById('theme-grid');
+      grid.innerHTML = `<div class="theme-card" data-theme="custom">
+        <div class="theme-card-preview" style="background:linear-gradient(135deg, #6c5ce7, #2d1b69)"></div>
+        <div class="theme-card-name">Personnalisé</div>
+      </div>`;
+      renderThemes(activeTheme);
+      renderCustomThemesList();
+
+      showToast(`Thème "${name}" créé et appliqué !`);
+    });
+
+    renderCustomThemesList();
+  }
+
+  async function renderCustomThemesList() {
+    const container = document.getElementById('custom-themes-list');
+    const themes = await ThemeManager.getCustomThemes();
+
+    if (themes.length === 0) {
+      container.innerHTML = '<p class="setting-hint">Aucun thème personnalisé.</p>';
+      return;
+    }
+
+    container.innerHTML = themes.map(theme => `
+      <div class="module-toggle-item">
+        <span class="module-toggle-name" style="display:flex;align-items:center;gap:8px">
+          <span style="width:14px;height:14px;border-radius:50%;background:${theme.vars['--accent']};display:inline-block;flex-shrink:0"></span>
+          ${theme.name}
+        </span>
+        <div style="display:flex;gap:4px">
+          <button class="module-btn-ghost" data-apply-theme="${theme.id}" style="font-size:0.72rem;padding:3px 8px">Appliquer</button>
+          <button class="module-btn-ghost danger-btn" data-delete-theme="${theme.id}" style="font-size:0.72rem;padding:3px 8px">✕</button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('[data-apply-theme]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await ThemeManager.setTheme(btn.dataset.applyTheme);
+        showToast('Thème appliqué !');
+      });
+    });
+
+    container.querySelectorAll('[data-delete-theme]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await ThemeManager.deleteCustomTheme(btn.dataset.deleteTheme);
+        renderCustomThemesList();
+        showToast('Thème supprimé');
+      });
     });
   }
 
