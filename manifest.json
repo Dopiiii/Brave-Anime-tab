@@ -1,12 +1,24 @@
 {
   "manifest_version": 3,
   "name": "Anime Tab",
-  "version": "1.0.0",
-  "description": "A fully customizable new tab page with animated wallpapers, draggable modules, themes, and developer mode.",
+  "version": "2.0.0",
+  "description": "New tab page with modules, themes, particles, custom cursor, profiles, and more.",
   "permissions": [
     "storage",
     "unlimitedStorage",
-    "topSites"
+    "topSites",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://api.open-meteo.com/*",
+    "https://geocoding-api.open-meteo.com/*",
+    "https://air-quality-api.open-meteo.com/*",
+    "https://api.coingecko.com/*",
+    "https://api.rss2json.com/*",
+    "https://ws.audioscrobbler.com/*",
+    "https://images.unsplash.com/*",
+    "https://fonts.googleapis.com/*",
+    "https://fonts.gstatic.com/*"
   ],
   "chrome_url_overrides": {
     "newtab": "newtab.html"

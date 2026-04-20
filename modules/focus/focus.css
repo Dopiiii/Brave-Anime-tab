@@ -1,0 +1,93 @@
+.focus-module {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.focus-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  padding: 8px;
+}
+
+.focus-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.focus-icon {
+  font-size: 2rem;
+}
+
+.focus-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.focus-timer-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.focus-countdown {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+.focus-session-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.focus-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.focus-duration-select {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+}
+
+.focus-blocked-hint {
+  font-size: 0.75rem;
+  color: var(--accent);
+  text-align: center;
+  font-weight: 600;
+  animation: pulse-focus 2s ease-in-out infinite;
+}
+
+@keyframes pulse-focus {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* Global focus mode styles */
+body.focus-mode-active .module-cell:not([data-module-id="focus"]) {
+  opacity: 0.3;
+  transition: opacity 400ms;
+}
+
+body.focus-mode-active .module-cell[data-module-id="focus"] {
+  z-index: 10;
+}

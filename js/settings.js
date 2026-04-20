@@ -60,30 +60,41 @@ const SettingsPanel = (() => {
       </div>
 
       <div class="settings-tabs">
-        <button class="settings-tab active" data-tab="wallpaper">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-          <span>Fond d'écran</span>
-        </button>
-        <button class="settings-tab" data-tab="modules">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          <span>Modules</span>
-        </button>
-        <button class="settings-tab" data-tab="layout">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-          <span>Disposition</span>
-        </button>
-        <button class="settings-tab" data-tab="appearance">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          <span>Apparence</span>
-        </button>
-        <button class="settings-tab" data-tab="themes">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-          <span>Thèmes</span>
-        </button>
-        <button class="settings-tab" data-tab="more">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-          <span>Plus</span>
-        </button>
+        <div class="settings-dropdown" id="settings-dropdown">
+          <button class="settings-dropdown-trigger" id="settings-dropdown-trigger">
+            <span class="settings-dropdown-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              <span id="settings-dropdown-text">Fond d'écran</span>
+            </span>
+            <svg class="settings-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="settings-dropdown-menu" id="settings-dropdown-menu">
+            <button class="settings-dropdown-item active" data-tab="wallpaper">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              Fond d'écran
+            </button>
+            <button class="settings-dropdown-item" data-tab="modules">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Modules
+            </button>
+            <button class="settings-dropdown-item" data-tab="layout">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              Disposition
+            </button>
+            <button class="settings-dropdown-item" data-tab="appearance">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              Apparence
+            </button>
+            <button class="settings-dropdown-item" data-tab="themes">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              Thèmes
+            </button>
+            <button class="settings-dropdown-item" data-tab="more">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              Plus
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="settings-body">
@@ -433,13 +444,39 @@ const SettingsPanel = (() => {
     _backdrop.addEventListener('click', close);
     document.getElementById('settings-trigger').addEventListener('click', toggle);
 
-    // Tab navigation
-    _panel.querySelectorAll('.settings-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        _panel.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+    // Custom dropdown navigation
+    const dropdown = document.getElementById('settings-dropdown');
+    const dropdownTrigger = document.getElementById('settings-dropdown-trigger');
+    const dropdownText = document.getElementById('settings-dropdown-text');
+    const dropdownMenu = document.getElementById('settings-dropdown-menu');
+
+    dropdownTrigger.addEventListener('click', () => {
+      dropdown.classList.toggle('open');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    dropdownMenu.querySelectorAll('.settings-dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        // Update active state
+        dropdownMenu.querySelectorAll('.settings-dropdown-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+
+        // Update trigger label and icon
+        dropdownText.textContent = item.textContent.trim();
+        const triggerLabel = dropdownTrigger.querySelector('.settings-dropdown-label');
+        const itemSvg = item.querySelector('svg');
+        triggerLabel.querySelector('svg').replaceWith(itemSvg.cloneNode(true));
+
+        // Switch tab content
         _panel.querySelectorAll('.settings-tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        _panel.querySelector(`.settings-tab-content[data-tab="${tab.dataset.tab}"]`).classList.add('active');
+        _panel.querySelector(`.settings-tab-content[data-tab="${item.dataset.tab}"]`).classList.add('active');
+
+        // Close dropdown
+        dropdown.classList.remove('open');
       });
     });
 

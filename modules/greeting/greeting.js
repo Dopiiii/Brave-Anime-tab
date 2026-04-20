@@ -1,5 +1,5 @@
 /* ============================================
-   GREETING MODULE
+   GREETING MODULE — Fixed memory leak
    ============================================ */
 
 window.GreetingModule = {
@@ -7,68 +7,61 @@ window.GreetingModule = {
   name: 'Salutation',
   defaultPosition: { col: 1, row: 1, colSpan: 2, rowSpan: 1 },
 
+  _interval: null,
+
   render(config) {
     const greeting = this._getGreeting(config);
-    const name = config.name || '';
-    const nameDisplay = name ? `, ${name}` : '';
-
+    const name = config.name ? `, ${config.name}` : '';
     return `
       <div class="greeting-module">
-        <div class="greeting-text">${greeting}${nameDisplay}</div>
+        <div class="greeting-text">${greeting}${name} 👋</div>
         <div class="greeting-subtitle">${this._getSubtitle(config)}</div>
       </div>
     `;
   },
 
   _getGreeting(config) {
-    const hour = new Date().getHours();
-    const lang = config.language || 'fr';
-
-    if (lang === 'fr') {
-      if (hour >= 5 && hour < 12) return 'Bonjour';
-      if (hour >= 12 && hour < 18) return 'Bon après-midi';
-      if (hour >= 18 && hour < 22) return 'Bonsoir';
+    const h = new Date().getHours();
+    if ((config.language || 'fr') === 'fr') {
+      if (h >= 5  && h < 12) return 'Bonjour';
+      if (h >= 12 && h < 18) return 'Bon après-midi';
+      if (h >= 18 && h < 22) return 'Bonsoir';
       return 'Bonne nuit';
-    } else {
-      if (hour >= 5 && hour < 12) return 'Good morning';
-      if (hour >= 12 && hour < 18) return 'Good afternoon';
-      if (hour >= 18 && hour < 22) return 'Good evening';
-      return 'Good night';
     }
+    if (h >= 5  && h < 12) return 'Good morning';
+    if (h >= 12 && h < 18) return 'Good afternoon';
+    if (h >= 18 && h < 22) return 'Good evening';
+    return 'Good night';
   },
 
   _getSubtitle(config) {
-    const hour = new Date().getHours();
-    const lang = config.language || 'fr';
-
-    if (lang === 'fr') {
-      if (hour >= 5 && hour < 12) return 'Prêt pour une nouvelle journée ?';
-      if (hour >= 12 && hour < 14) return 'Bon appétit !';
-      if (hour >= 14 && hour < 18) return 'Continue comme ça !';
-      if (hour >= 18 && hour < 22) return 'Bonne soirée !';
+    const h = new Date().getHours();
+    if ((config.language || 'fr') === 'fr') {
+      if (h >= 5  && h < 12) return 'Prêt pour une nouvelle journée ?';
+      if (h >= 12 && h < 14) return 'Bon appétit !';
+      if (h >= 14 && h < 18) return 'Continue comme ça !';
+      if (h >= 18 && h < 22) return 'Bonne soirée !';
       return 'Il est temps de se reposer.';
-    } else {
-      if (hour >= 5 && hour < 12) return 'Ready for a new day?';
-      if (hour >= 12 && hour < 14) return 'Enjoy your lunch!';
-      if (hour >= 14 && hour < 18) return 'Keep going!';
-      if (hour >= 18 && hour < 22) return 'Have a great evening!';
-      return 'Time to rest.';
     }
+    if (h >= 5  && h < 12) return 'Ready for a new day?';
+    if (h >= 12 && h < 14) return 'Enjoy your lunch!';
+    if (h >= 14 && h < 18) return 'Keep going!';
+    if (h >= 18 && h < 22) return 'Have a great evening!';
+    return 'Time to rest.';
   },
 
   mount(el, config) {
-    // Update greeting every minute (time of day can change)
+    if (this._interval) {
+      clearInterval(this._interval);
+      this._interval = null;
+    }
     this._interval = setInterval(() => {
       const greetingEl = el.querySelector('.greeting-text');
       const subtitleEl = el.querySelector('.greeting-subtitle');
-      if (greetingEl) {
-        const name = config.name || '';
-        const nameDisplay = name ? `, ${name}` : '';
-        greetingEl.textContent = this._getGreeting(config) + nameDisplay;
-      }
-      if (subtitleEl) {
-        subtitleEl.textContent = this._getSubtitle(config);
-      }
+      if (!greetingEl) { clearInterval(this._interval); this._interval = null; return; }
+      const name = config.name ? `, ${config.name}` : '';
+      greetingEl.textContent = this._getGreeting(config) + name + ' 👋';
+      if (subtitleEl) subtitleEl.textContent = this._getSubtitle(config);
     }, 60000);
   },
 
@@ -89,7 +82,7 @@ window.GreetingModule = {
       <div class="setting-group">
         <label class="setting-label">Langue</label>
         <select class="setting-select" data-module="greeting" data-key="language">
-          <option value="fr" ${config.language === 'fr' ? 'selected' : ''}>Français</option>
+          <option value="fr" ${(config.language || 'fr') === 'fr' ? 'selected' : ''}>Français</option>
           <option value="en" ${config.language === 'en' ? 'selected' : ''}>English</option>
         </select>
       </div>

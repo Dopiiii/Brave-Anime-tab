@@ -5,39 +5,49 @@
 const StorageManager = (() => {
   const DEFAULTS = {
     wallpaper: {
-      type: 'none',        // 'video' | 'image' | 'none'
-      source: 'local',     // 'local' | 'url'
+      type: 'none',
+      source: 'local',
       url: '',
-      localKey: '',        // IndexedDB key for large files
+      localKey: '',
       fileName: ''
     },
     grid: {
       columns: 4,
       rows: 3,
       layoutMode: 'auto',
-      modulePositions: {}  // { moduleId: { col, row, colSpan, rowSpan } }
+      modulePositions: {},
+      savedPositions: {}
     },
     modules: {
-      clock:     { enabled: true, config: { format: '24h', showSeconds: false, showDate: true } },
-      greeting:  { enabled: true, config: { name: '', language: 'fr' } },
-      search:    { enabled: true, config: { engine: 'google', placeholder: 'Rechercher...', commands: [] } },
-      weather:   { enabled: true, config: { mode: 'minimal', unit: 'C', city: '', lat: null, lon: null } },
-      shortcuts: { enabled: true, config: { showSimple: true, showFolders: false, showTopSites: true, items: [], folders: [] } },
-      todo:      { enabled: true, config: { items: [] } },
-      quote:     { enabled: true, config: { category: 'inspirational', language: 'fr' } },
+      clock:     { enabled: true,  config: { format: '24h', showSeconds: false, showDate: true } },
+      greeting:  { enabled: true,  config: { name: '', language: 'fr' } },
+      search:    { enabled: true,  config: { engine: 'google', placeholder: 'Rechercher...', commands: [] } },
+      weather:   { enabled: true,  config: { mode: 'minimal', unit: 'C', city: '', lat: null, lon: null, showUV: false, showAQI: false } },
+      shortcuts: { enabled: true,  config: { showSimple: true, showFolders: false, showTopSites: true, items: [], folders: [] } },
+      todo:      { enabled: true,  config: { items: [] } },
+      quote:     { enabled: true,  config: { category: 'inspirational', language: 'fr' } },
       notes:     { enabled: false, config: { content: '' } },
       pomodoro:  { enabled: false, config: { workDuration: 25, breakDuration: 5 } },
-      countdown: { enabled: false, config: { label: '', targetDate: '' } }
+      countdown: { enabled: false, config: { label: '', targetDate: '' } },
+      calendar:  { enabled: false, config: { showEvents: true, events: [] } },
+      habits:    { enabled: false, config: { habits: [], completions: {} } },
+      stopwatch: { enabled: false, config: {} },
+      crypto:    { enabled: false, config: { coins: ['bitcoin','ethereum','solana'], currency: 'eur' } },
+      rss:       { enabled: false, config: { feedUrl: '', feedName: 'RSS', itemCount: 5 } },
+      focus:     { enabled: false, config: { defaultDuration: 25, dimModules: true } },
+      lastfm:    { enabled: false, config: { username: '', apiKey: '' } },
+      perf:      { enabled: false, config: {} }
     },
     appearance: {
       moduleOpacity: 0.08,
       moduleBlur: 12,
       accentColor: '#6c5ce7',
       fontFamily: 'Segoe UI',
-      moduleRadius: 16
+      moduleRadius: 16,
+      autoDarkMode: false
     },
     theme: {
-      active: 'custom',   // 'custom' | theme preset id
+      active: 'custom'
     },
     bootAnimation: {
       enabled: true
@@ -50,14 +60,24 @@ const StorageManager = (() => {
         toggleEditMode: 'e'
       }
     },
-    customThemes: [],      // [{ id, name, vars: { ... } }]
+    particles: {
+      preset: 'none',
+      density: 1
+    },
+    cursor: {
+      style: 'none',
+      color: '#6c5ce7'
+    },
+    notifications: {
+      enabled: false
+    },
+    customThemes: [],
     devMode: {
       enabled: false,
-      customModules: []    // [{ id, name, html, css, js }]
+      customModules: []
     }
   };
 
-  // Deep merge helper
   function deepMerge(target, source) {
     const result = { ...target };
     for (const key of Object.keys(source)) {
@@ -70,39 +90,26 @@ const StorageManager = (() => {
     return result;
   }
 
-  // Get all settings, merged with defaults
   async function getAll() {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(null, (data) => {
-        resolve(deepMerge(DEFAULTS, data));
-      });
+    return new Promise(resolve => {
+      chrome.storage.local.get(null, data => resolve(deepMerge(DEFAULTS, data)));
     });
   }
 
-  // Get a top-level key
   async function get(key) {
     const all = await getAll();
     return all[key];
   }
 
-  // Set a top-level key
   async function set(key, value) {
-    return new Promise((resolve) => {
-      chrome.storage.local.set({ [key]: value }, resolve);
-    });
+    return new Promise(resolve => chrome.storage.local.set({ [key]: value }, resolve));
   }
 
-  // Update nested value with dot notation: set('modules.clock.config.format', '12h')
   async function setNested(path, value) {
-    const keys = path.split('.');
+    const keys   = path.split('.');
     const topKey = keys[0];
     const current = await get(topKey);
-
-    if (keys.length === 1) {
-      await set(topKey, value);
-      return;
-    }
-
+    if (keys.length === 1) { await set(topKey, value); return; }
     let obj = current;
     for (let i = 1; i < keys.length - 1; i++) {
       if (!obj[keys[i]]) obj[keys[i]] = {};
@@ -112,109 +119,81 @@ const StorageManager = (() => {
     await set(topKey, current);
   }
 
-  // Listen for storage changes
   function onChange(callback) {
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === 'local') {
-        callback(changes);
-      }
+      if (area === 'local') callback(changes);
     });
   }
 
-  // Reset all settings to defaults
   async function reset() {
-    return new Promise((resolve) => {
-      chrome.storage.local.clear(() => {
-        chrome.storage.local.set(DEFAULTS, resolve);
-      });
+    return new Promise(resolve => {
+      chrome.storage.local.clear(() => chrome.storage.local.set(DEFAULTS, resolve));
     });
   }
 
-  // Export all settings as JSON
   async function exportConfig() {
     const all = await getAll();
-    // Don't export localKey (binary data references)
     const exported = { ...all };
-    if (exported.wallpaper) {
-      delete exported.wallpaper.localKey;
-    }
+    if (exported.wallpaper) delete exported.wallpaper.localKey;
     return JSON.stringify(exported, null, 2);
   }
 
-  // Import settings from JSON
   async function importConfig(jsonString) {
     const config = JSON.parse(jsonString);
     const merged = deepMerge(DEFAULTS, config);
-    return new Promise((resolve) => {
-      chrome.storage.local.set(merged, resolve);
-    });
+    return new Promise(resolve => chrome.storage.local.set(merged, resolve));
   }
 
-  return {
-    DEFAULTS,
-    getAll,
-    get,
-    set,
-    setNested,
-    onChange,
-    reset,
-    exportConfig,
-    importConfig
-  };
+  return { DEFAULTS, getAll, get, set, setNested, onChange, reset, exportConfig, importConfig };
 })();
 
 /* ============================================
-   IndexedDB helper for large files (videos)
+   IndexedDB helper for large files
    ============================================ */
 const MediaDB = (() => {
-  const DB_NAME = 'BraveAnimeTabMedia';
-  const STORE_NAME = 'files';
-  const DB_VERSION = 1;
+  const DB_NAME   = 'BraveAnimeTabMedia';
+  const STORE     = 'files';
+  const DB_VER    = 1;
 
   function openDB() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
-      request.onupgradeneeded = (e) => {
+      const req = indexedDB.open(DB_NAME, DB_VER);
+      req.onupgradeneeded = e => {
         const db = e.target.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME);
-        }
+        if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
       };
-      request.onsuccess = (e) => resolve(e.target.result);
-      request.onerror = (e) => reject(e.target.error);
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror   = e => reject(e.target.error);
     });
   }
 
   async function saveFile(key, blob) {
     const db = await openDB();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      store.put(blob, key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = (e) => reject(e.target.error);
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).put(blob, key);
+      tx.oncomplete = resolve;
+      tx.onerror = e => reject(e.target.error);
     });
   }
 
   async function getFile(key) {
     const db = await openDB();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const request = store.get(key);
-      request.onsuccess = () => resolve(request.result || null);
-      request.onerror = (e) => reject(e.target.error);
+      const req = db.transaction(STORE, 'readonly').objectStore(STORE).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror   = e => reject(e.target.error);
     });
   }
 
   async function deleteFile(key) {
+    if (!key) return;
     const db = await openDB();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      store.delete(key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = (e) => reject(e.target.error);
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).delete(key);
+      tx.oncomplete = resolve;
+      tx.onerror = e => reject(e.target.error);
     });
   }
 

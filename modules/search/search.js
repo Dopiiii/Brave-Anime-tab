@@ -1,5 +1,6 @@
 /* ============================================
    SEARCH MODULE — with custom commands
+   Fixed: URL encoding, input validation
    ============================================ */
 
 window.SearchModule = {
@@ -8,16 +9,27 @@ window.SearchModule = {
   defaultPosition: { col: 1, row: 2, colSpan: 4, rowSpan: 1 },
 
   _engines: {
-    google: { name: 'Google', url: 'https://www.google.com/search?q=' },
-    duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
-    bing: { name: 'Bing', url: 'https://www.bing.com/search?q=' },
-    brave: { name: 'Brave Search', url: 'https://search.brave.com/search?q=' }
+    google:     { name: 'Google',      url: 'https://www.google.com/search?q=' },
+    duckduckgo: { name: 'DuckDuckGo',  url: 'https://duckduckgo.com/?q=' },
+    bing:       { name: 'Bing',        url: 'https://www.bing.com/search?q=' },
+    brave:      { name: 'Brave Search',url: 'https://search.brave.com/search?q=' },
+    youtube:    { name: 'YouTube',     url: 'https://www.youtube.com/results?search_query=' },
+    github:     { name: 'GitHub',      url: 'https://github.com/search?q=' }
+  },
+
+  _safeUrl(base, query) {
+    try {
+      const url = new URL(base + encodeURIComponent(query));
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+      return url.href;
+    } catch {
+      return null;
+    }
   },
 
   render(config) {
     const engine = this._engines[config.engine] || this._engines.google;
     const placeholder = config.placeholder || `Rechercher sur ${engine.name}...`;
-
     return `
       <div class="search-module">
         <div class="search-wrapper">
@@ -54,7 +66,9 @@ window.SearchModule = {
             s.addEventListener('click', () => {
               const cmd = commands.find(c => c.name === s.dataset.cmd);
               if (cmd) {
-                cmd.urls.forEach(url => window.open(url, '_blank'));
+                cmd.urls.forEach(url => {
+                  try { window.open(new URL(url).href, '_blank'); } catch { /* invalid url */ }
+                });
                 input.value = '';
                 hint.classList.add('hidden');
               }
@@ -69,25 +83,31 @@ window.SearchModule = {
     });
 
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && input.value.trim()) {
-        const val = input.value.trim();
-
-        // Check for custom commands
-        if (val.startsWith('/') && commands.length > 0) {
-          const cmdName = val.slice(1).toLowerCase();
-          const cmd = commands.find(c => c.name.toLowerCase() === cmdName);
-          if (cmd) {
-            cmd.urls.forEach(url => window.open(url, '_blank'));
-            input.value = '';
-            hint.classList.add('hidden');
-            return;
-          }
-        }
-
-        // Normal search
-        const query = encodeURIComponent(val);
-        window.location.href = engine.url + query;
+      if (e.key === 'Escape') {
+        input.value = '';
+        hint.classList.add('hidden');
+        input.blur();
+        return;
       }
+      if (e.key !== 'Enter' || !input.value.trim()) return;
+
+      const val = input.value.trim();
+
+      if (val.startsWith('/') && commands.length > 0) {
+        const cmdName = val.slice(1).toLowerCase();
+        const cmd = commands.find(c => c.name.toLowerCase() === cmdName);
+        if (cmd) {
+          cmd.urls.forEach(url => {
+            try { window.open(new URL(url).href, '_blank'); } catch { /* invalid */ }
+          });
+          input.value = '';
+          hint.classList.add('hidden');
+          return;
+        }
+      }
+
+      const dest = this._safeUrl(engine.url, val);
+      if (dest) window.location.href = dest;
     });
   },
 
@@ -109,10 +129,12 @@ window.SearchModule = {
       <div class="setting-group">
         <label class="setting-label">Moteur de recherche</label>
         <select class="setting-select" data-module="search" data-key="engine">
-          <option value="google" ${config.engine === 'google' ? 'selected' : ''}>Google</option>
+          <option value="google"     ${config.engine === 'google'     ? 'selected' : ''}>Google</option>
           <option value="duckduckgo" ${config.engine === 'duckduckgo' ? 'selected' : ''}>DuckDuckGo</option>
-          <option value="bing" ${config.engine === 'bing' ? 'selected' : ''}>Bing</option>
-          <option value="brave" ${config.engine === 'brave' ? 'selected' : ''}>Brave Search</option>
+          <option value="bing"       ${config.engine === 'bing'       ? 'selected' : ''}>Bing</option>
+          <option value="brave"      ${config.engine === 'brave'      ? 'selected' : ''}>Brave Search</option>
+          <option value="youtube"    ${config.engine === 'youtube'    ? 'selected' : ''}>YouTube</option>
+          <option value="github"     ${config.engine === 'github'     ? 'selected' : ''}>GitHub</option>
         </select>
       </div>
       <div class="setting-group">
@@ -122,7 +144,7 @@ window.SearchModule = {
       </div>
       <div class="setting-divider"></div>
       <p class="setting-section-title">Commandes personnalisées</p>
-      <p class="setting-hint">Tapez /<em>nom</em> dans la barre de recherche pour ouvrir plusieurs sites d'un coup.</p>
+      <p class="setting-hint">Tapez /<em>nom</em> dans la barre de recherche pour ouvrir plusieurs sites.</p>
       <div class="search-commands-list">${commandsHtml || '<p class="setting-hint">Aucune commande.</p>'}</div>
       <div class="setting-group" style="margin-top:10px">
         <label class="setting-label">Nouvelle commande</label>
